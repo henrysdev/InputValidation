@@ -1,8 +1,8 @@
-TEST_CASES = ["ADD Henry Warren 6128458645",
-              "ADD Henry 6128458645",
-              "ADD Henry O'Warren +1 6128458645",
+TEST_CASES = ["ADD Henry 6128458645",
+              "ADD Logan Paul 6128458645",
+              "ADD Henry +1(612)845 8645",
               "DEL Henry",
-              "DEL 6128458645"
+              "DEL 6128458645",
              ]
 
 def tests():
