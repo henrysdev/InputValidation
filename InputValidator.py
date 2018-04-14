@@ -11,6 +11,8 @@ from random import randint
 
 ADD_REGEX = r'(((O(’|\'))?[A-Z][a-z]+)(( |(, )|-)((O(’|\'))?([A-Z][a-z]+)|([A-Z].))){0,2}) (([1-9]{3}\d{7})|(\+?(1?)(\d{5}|\(\d{3}\))(\d{3})-(\d{4}))|((\d{5})(.(\d{5}))?)|(\d{3}\.\d{3}\.\d{4})|(\d{3}-\d{3}-\d{4})|((\d{3} (\d{1} )?)?\d{3} \d{3} \d{4})|(\d{3}-\d{4})|(\+[1-9]{2} \(\d{2}\) \d{3}-\d{4}|((\+1) \d{3} \d{3} \d{4})))'
 DEL_REGEX = r'(((O(’|\'))?[A-Z][a-z]+)(( |(, )|-)((O(’|\'))?([A-Z][a-z]+)|([A-Z].))){0,2})|(([1-9]{3}\d{7})|(\+?(1?)(\d{5}|\(\d{3}\))(\d{3})-(\d{4}))|((\d{5})(.(\d{5}))?)|(\d{3}\.\d{3}\.\d{4})|(\d{3}-\d{3}-\d{4})|((\d{3} (\d{1} )?)?\d{3} \d{3} \d{4})|(\d{3}-\d{4})|(\+[1-9]{2} \(\d{2}\) \d{3}-\d{4}|((\+1) \d{3} \d{3} \d{4})))'
+NAME_GROUP = 1
+PHONENUM_GROUP = 13
 
 
 """
@@ -34,6 +36,8 @@ class InputValidator:
     def __init__(self):
         self.db = []
         self.id_increment = randint(1,999)
+        self.add_regex = re.compile(ADD_REGEX)
+        self.del_regex = re.compile(DEL_REGEX)
 
 
     def print_list(self):
@@ -91,8 +95,9 @@ class InputValidator:
             return self.del_by_id(found_entries[0].rec_id)
         # expection case (>1 entry for key)
         elif len(found_entries) > 1:
-            print("Multiple Records Found... Enter the Telephone # for the Account as well: ")
+            print("Multiple Records Found... Please Specify the Telephone # for the Account as well")
             phone_number = input("> ")
+            phone_number = self.sanitize(phone_number)
             return self.find_by_tel(phone_number, context=found_entries)
         # default case (no entry for key)
         else:
@@ -116,7 +121,7 @@ class InputValidator:
             return self.del_by_id(found_entries[0].rec_id)
         # expection case (>1 entry for key)
         elif len(found_entries) > 1:
-            print("Multiple Records Found... Enter the Name for the Account as well")
+            print("Multiple Records Found... Please Specify the Name for the Account as well")
             name = input("> ")
             return self.find_by_name(name, context=found_entries)
         # default case (no entry for key)
@@ -135,24 +140,26 @@ class InputValidator:
         if cmd.upper() == "ADD":
             if len(parts) == 2:
                 content = parts[1]
-                result = re.match(ADD_REGEX, content)
+                result = self.add_regex.match(content)
                 if result is not None:
                     # check that the regex matches the entire line
                     if result.group() == parts[1]:
-                        name = result.group(1)
-                        phone_number = result.group(13)
+                        name = result.group(NAME_GROUP)
+                        phone_number = result.group(PHONENUM_GROUP)
                         return self.add_record(name, phone_number)
         elif cmd.upper() == "DEL":
             if len(parts) == 2:
                 content = parts[1]
-                result = re.match(DEL_REGEX, content)
+                result = self.del_regex.match(content)
                 if result is not None:
                     # check that the regex matches the entire line
                     if result.group() == parts[1]:
-                        if result.group(1) is not None:
-                            return self.find_by_name(result.group(1))
-                        elif result.group(13) is not None:
-                            return self.find_by_tel(result.group(13))
+                        if result.group(NAME_GROUP) is not None:
+                            name = result.group(NAME_GROUP)
+                            return self.find_by_name(name)
+                        elif result.group(PHONENUM_GROUP) is not None:
+                            phone_number = self.sanitize(result.group(PHONENUM_GROUP))
+                            return self.find_by_tel(phone_number)
         elif cmd.upper() == "LIST":
             return self.print_list()
         print("Invalid Input")
@@ -164,12 +171,7 @@ if __name__ == "__main__":
     # DEBUG CASE TESTING
     if len(sys.argv) == 2:
         for i, case in enumerate(tests()):
-            print("\n>>>>[{}]>>>>\n{}\n--------".format(i,case))
-            if validator.validate(case):
-                print("[SUCCESS]")
-            else:
-                print("[FAILURE]")
-            print("\n<<<<<<<<")
+            validator.validate(case)
     while True:
         user_input = input("> ")
         res = validator.validate(user_input)
