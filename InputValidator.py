@@ -37,25 +37,46 @@ class InputValidator:
 
 
     def print_list(self):
-        print("********** Database **********")
-        for record in self.db:
-            print(str(record))
-        print("******************************")
+        try:
+            print(">>>>>>>> Database >>>>>>>>")
+            if len(self.db) == 0:
+                print("(empty)")
+            for record in self.db:
+                print(str(record))
+            print("<<<<<<<<<<<<<<<<<<<<<<<<<<")
+            return True
+        except:
+            return False
+
+
+    """
+    reduces phone number to digit string, stripping the formatting
+    """
+    def sanitize(self, phone_number):
+        return ''.join(filter(lambda x: x.isdigit(), phone_number))
 
 
     def add_record(self, name, phone_number):
-        record = UserRecord(name, phone_number, self.id_increment)
-        self.db.append(record)
-        self.id_increment += 1
-        print("Success")
+        try:
+            phone_number = self.sanitize(phone_number)
+            for i, record in enumerate(self.db):
+                if record.name == name and record.phone_number == phone_number:
+                    print("ERROR: Duplicate Record Detected")
+                    return False
+            record = UserRecord(name, phone_number, self.id_increment)
+            self.db.append(record)
+            self.id_increment += 1
+            return True
+        except:
+            return False
 
 
     def del_by_id(self, rec_id):
         for i, rec in enumerate(self.db):
             if rec.rec_id == rec_id:
                 self.db.pop(i)
-                print("Success")
-                return
+                return True
+        return False
 
 
     def find_by_name(self, name, context=None):
@@ -67,18 +88,20 @@ class InputValidator:
                 found_entries.append(record)
         # desired case (1 entry for key)
         if len(found_entries) == 1:
-            self.del_by_id(found_entries[0].rec_id)
+            return self.del_by_id(found_entries[0].rec_id)
         # expection case (>1 entry for key)
         elif len(found_entries) > 1:
             print("Multiple Records Found... Enter the Telephone # for the Account as well: ")
             phone_number = input("> ")
-            self.find_by_tel(phone_number, context=found_entries)
+            return self.find_by_tel(phone_number, context=found_entries)
         # default case (no entry for key)
         else:
             if context == self.db:
                 print("ERROR: Unable to Locate Record for Name={}".format(name))
+                return False
             else:
                 print("ERROR: Unable to Locate Record")
+                return False
 
 
     def find_by_tel(self, phone_number, context=None):
@@ -90,18 +113,20 @@ class InputValidator:
                 found_entries.append(record)
         # desired case (1 entry for key)
         if len(found_entries) == 1:
-            self.del_by_id(found_entries[0].rec_id)
+            return self.del_by_id(found_entries[0].rec_id)
         # expection case (>1 entry for key)
         elif len(found_entries) > 1:
-            print("Multiple Records Found... Enter the Name for the Account as well: ")
+            print("Multiple Records Found... Enter the Name for the Account as well")
             name = input("> ")
-            self.find_by_name(name, context=found_entries)
+            return self.find_by_name(name, context=found_entries)
         # default case (no entry for key)
         else:
             if context == self.db:
                 print("ERROR: Unable to Locate Record for Tel={}".format(phone_number))
+                return False
             else:
                 print("ERROR: Unable to Locate Record")
+                return False
 
 
     def validate(self, user_input):
@@ -116,8 +141,7 @@ class InputValidator:
                     if result.group() == parts[1]:
                         name = result.group(1)
                         phone_number = result.group(13)
-                        self.add_record(name, phone_number)
-                        return
+                        return self.add_record(name, phone_number)
         elif cmd.upper() == "DEL":
             if len(parts) == 2:
                 content = parts[1]
@@ -126,14 +150,13 @@ class InputValidator:
                     # check that the regex matches the entire line
                     if result.group() == parts[1]:
                         if result.group(1) is not None:
-                            self.find_by_name(result.group(1))
-                            return
+                            return self.find_by_name(result.group(1))
                         elif result.group(13) is not None:
-                            self.find_by_tel(result.group(13))
-                            return
+                            return self.find_by_tel(result.group(13))
         elif cmd.upper() == "LIST":
-            self.print_list()
-            return
+            return self.print_list()
+        print("Invalid Input")
+        return False
 
 
 if __name__ == "__main__":
@@ -142,9 +165,15 @@ if __name__ == "__main__":
     if len(sys.argv) == 2:
         for i, case in enumerate(tests()):
             print("\n>>>>[{}]>>>>\n{}\n--------".format(i,case))
-            validator.validate(case)
-            validator.print_list()
+            if validator.validate(case):
+                print("[SUCCESS]")
+            else:
+                print("[FAILURE]")
             print("\n<<<<<<<<")
     while True:
         user_input = input("> ")
-        validator.validate(user_input)
+        res = validator.validate(user_input)
+        if res:
+            print("[ACTION SUCCESS]")
+        if not res:
+            print("[ACTION FAILED]")
