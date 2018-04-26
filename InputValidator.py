@@ -23,8 +23,6 @@ PHONENUM_GROUP = 13
 
 
 class UserRecord:
-    """ Database record. Stores name and phone number and 
-        has method to nicely print them out. """
     def __init__(self, name, phone_number, rec_id):
         self.name = name
         self.phone_number = phone_number
@@ -37,7 +35,6 @@ class UserRecord:
 
 
 class InputValidator:
-    """ Validation engine and gatekeeper to database """
     def __init__(self):
         self.db = []
         self.id_increment = randint(1,999)
@@ -46,7 +43,7 @@ class InputValidator:
 
 
     def print_list(self):
-        """ attempt to prettyprint database contents """
+        """ prettyprint database contents """
         try:
             print(">>>>>>>> Database >>>>>>>>")
             if len(self.db) == 0:
@@ -186,9 +183,9 @@ class InputValidator:
 
 if __name__ == "__main__":
     validator = InputValidator()
-    # DEBUG CASE TESTING
+    # DEBUG CASE TESTING. REMOVE OR ADAPT FOR SUBMISSION
     if len(sys.argv) == 2:
-        for i, case in enumerate(tests()):
+        for case in tests():
             validator.validate(case)
     print(" ***********************")
     print(" *                     *")
