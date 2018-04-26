@@ -1,38 +1,43 @@
-"""
-ADD <Person> <Telephone #> - Add a new person to the database 
-DEL <Person> - Remove someone from the database by name 
-DEL <Telephone #> - Remove someone by telephone # 
-LIST - Produce a list of the members of the database
-"""
+# Henry Warren 2018
+
 import re
 import sys
 from Tests import tests
 from random import randint
 
-ADD_REGEX = r'(((O(’|\'))?[A-Z][a-z]+)(( |(, )|-)((O(’|\'))?([A-Z][a-z]+)|([A-Z].))){0,2}) (([1-9]{3}\d{7})|(\+?(1?)(\d{5}|\(\d{3}\))(\d{3})-(\d{4}))|((\d{5})(.(\d{5}))?)|(\d{3}\.\d{3}\.\d{4})|(\d{3}-\d{3}-\d{4})|((\d{3} (\d{1} )?)?\d{3} \d{3} \d{4})|(\d{3}-\d{4})|(\+[1-9]{2} \(\d{2}\) \d{3}-\d{4}|((\+1) \d{3} \d{3} \d{4})))'
-DEL_REGEX = r'(((O(’|\'))?[A-Z][a-z]+)(( |(, )|-)((O(’|\'))?([A-Z][a-z]+)|([A-Z].))){0,2})|(([1-9]{3}\d{7})|(\+?(1?)(\d{5}|\(\d{3}\))(\d{3})-(\d{4}))|((\d{5})(.(\d{5}))?)|(\d{3}\.\d{3}\.\d{4})|(\d{3}-\d{3}-\d{4})|((\d{3} (\d{1} )?)?\d{3} \d{3} \d{4})|(\d{3}-\d{4})|(\+[1-9]{2} \(\d{2}\) \d{3}-\d{4}|((\+1) \d{3} \d{3} \d{4})))'
+ADD_REGEX = (r'(((O(’|\'))?[A-Z][a-z]+)(( |(, )|-)((O(’|\'))?([A-Z][a-z]+)'
+             r'|([A-Z].))){0,2}) (([1-9]{3}\d{7})|(\+?(1?)(\d{5}|\(\d{3}\))'
+             r'(\d{3})-(\d{4}))|((\d{5})(.(\d{5}))?)|(\d{3}\.\d{3}\.\d{4})|'
+             r'(\d{3}-\d{3}-\d{4})|((\d{3} (\d{1} )?)?\d{3} \d{3} \d{4})|'
+             r'(\d{3}-\d{4})|(\+[1-9]{2} \(\d{2}\) \d{3}-\d{4}|((\+1) \d{3}'
+             r' \d{3} \d{4})))')
+DEL_REGEX = (r'(((O(’|\'))?[A-Z][a-z]+)(( |(, )|-)((O(’|\'))?([A-Z][a-z]+)'
+             r'|([A-Z].))){0,2})|(([1-9]{3}\d{7})|(\+?(1?)(\d{5}|\(\d{3}\))'
+             r'(\d{3})-(\d{4}))|((\d{5})(.(\d{5}))?)|(\d{3}\.\d{3}\.\d{4})|'
+             r'(\d{3}-\d{3}-\d{4})|((\d{3} (\d{1} )?)?\d{3} \d{3} \d{4})|'
+             r'(\d{3}-\d{4})|(\+[1-9]{2} \(\d{2}\) \d{3}-\d{4}|((\+1) \d{3}'
+             r' \d{3} \d{4})))')
 NAME_GROUP = 1
 PHONENUM_GROUP = 13
 
 
-"""
-Database record. Stores name and phone number and 
-has method to nicely print them out.
-"""
+
 class UserRecord:
+    """ Database record. Stores name and phone number and 
+        has method to nicely print them out. """
     def __init__(self, name, phone_number, rec_id):
         self.name = name
         self.phone_number = phone_number
         self.rec_id = rec_id
 
+
     def __str__(self):
         return "{} : {}".format(self.name, self.phone_number)
 
 
-"""
-Validation engine and gatekeeper to database.
-"""
+
 class InputValidator:
+    """ Validation engine and gatekeeper to database """
     def __init__(self):
         self.db = []
         self.id_increment = randint(1,999)
@@ -41,26 +46,26 @@ class InputValidator:
 
 
     def print_list(self):
+        """ attempt to prettyprint database contents """
         try:
             print(">>>>>>>> Database >>>>>>>>")
             if len(self.db) == 0:
                 print("(empty)")
             for record in self.db:
                 print(str(record))
-            print("<<<<<<<<<<<<<<<<<<<<<<<<<<")
+            print("<<<<<<<<<<<<<<<<<<<<<<<<<<\n")
             return True
         except:
             return False
 
 
-    """
-    reduces phone number to digit string, stripping the formatting
-    """
     def sanitize(self, phone_number):
+        """ reduces phone number to digit string, stripping the formatting """
         return ''.join(filter(lambda x: x.isdigit(), phone_number))
 
 
     def add_record(self, name, phone_number):
+        """ add database record from given input """
         try:
             phone_number = self.sanitize(phone_number)
             for i, record in enumerate(self.db):
@@ -76,6 +81,7 @@ class InputValidator:
 
 
     def del_by_id(self, rec_id):
+        """ delete a record by its id """
         for i, rec in enumerate(self.db):
             if rec.rec_id == rec_id:
                 self.db.pop(i)
@@ -84,6 +90,7 @@ class InputValidator:
 
 
     def find_by_name(self, name, context=None):
+        """ attempt to find record by name """
         if not context:
             context = self.db
         found_entries = []
@@ -93,9 +100,10 @@ class InputValidator:
         # desired case (1 entry for key)
         if len(found_entries) == 1:
             return self.del_by_id(found_entries[0].rec_id)
-        # expection case (>1 entry for key)
+        # expected case (>1 entry for key)
         elif len(found_entries) > 1:
-            print("Multiple Records Found... Please Specify the Telephone # for the Account as well")
+            print("Multiple Records Found... "
+                "Please Specify the Telephone # for the Account as well")
             phone_number = input("> ")
             phone_number = self.sanitize(phone_number)
             return self.find_by_tel(phone_number, context=found_entries)
@@ -110,6 +118,7 @@ class InputValidator:
 
 
     def find_by_tel(self, phone_number, context=None):
+        """ attempt to find record by phone number """
         if not context:
             context = self.db
         found_entries = []
@@ -119,9 +128,10 @@ class InputValidator:
         # desired case (1 entry for key)
         if len(found_entries) == 1:
             return self.del_by_id(found_entries[0].rec_id)
-        # expection case (>1 entry for key)
+        # expected case (>1 entry for key)
         elif len(found_entries) > 1:
-            print("Multiple Records Found... Please Specify the Name for the Account as well")
+            print("Multiple Records Found... "
+                "Please Specify the Name for the Account as well")
             name = input("> ")
             return self.find_by_name(name, context=found_entries)
         # default case (no entry for key)
@@ -135,6 +145,7 @@ class InputValidator:
 
 
     def validate(self, user_input):
+        """ attempt to validate user input and return a success or failure """
         parts = user_input.split(' ',1)
         cmd = parts[0]
         if cmd.upper() == "ADD":
@@ -158,10 +169,17 @@ class InputValidator:
                             name = result.group(NAME_GROUP)
                             return self.find_by_name(name)
                         elif result.group(PHONENUM_GROUP) is not None:
-                            phone_number = self.sanitize(result.group(PHONENUM_GROUP))
+                            phone_number = self.sanitize(result.group(
+                                                        PHONENUM_GROUP))
                             return self.find_by_tel(phone_number)
         elif cmd.upper() == "LIST":
             return self.print_list()
+        elif cmd.upper() == "HELP":
+            print(" ADD <Name> <Phone Number>")
+            print(" DEL <Name> or <Phone Number>")
+            print(" LIST")
+            print(" HELP\n")
+            return True
         print("Invalid Input")
         return False
 
@@ -172,10 +190,16 @@ if __name__ == "__main__":
     if len(sys.argv) == 2:
         for i, case in enumerate(tests()):
             validator.validate(case)
+    print(" ***********************")
+    print(" *                     *")
+    print(" *  GLOBAL PHONE BOOK  *")
+    print(" *                     *")
+    print(" ***********************")
+    print("Enter HELP for commands list")
     while True:
         user_input = input("> ")
         res = validator.validate(user_input)
         if res:
-            print("[ACTION SUCCESS]")
+            print("[ACTION COMPLETE]")
         if not res:
             print("[ACTION FAILED]")
