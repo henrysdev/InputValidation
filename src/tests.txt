@@ -5,3 +5,9 @@ ADD Anthony O'Hara 1231231234
 ADD Matthew Crenshaw 828 128 3288
 ADD Henry 123-234-5351
 ADD Henry 828.128.3288
+ADD Bruce Schneier 12345
+ADD Cher (703)111-2121
+ADD Douggie Fresh +1(703)111-2122
+ADD Gertrude Mc Fuzz 12345.12345
+ADD Melvin Doo 011 1 703 111 1234
+ADD Schatner, John 133-232-1234

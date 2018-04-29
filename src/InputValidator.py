@@ -42,7 +42,7 @@ class InputValidator:
 
 
     def print_list(self):
-        """ prettyprint database contents """
+        """ pretty print database contents """
         try:
             print(">>>>>>>> Database >>>>>>>>")
             if len(self.db) == 0:
@@ -93,7 +93,7 @@ class InputValidator:
         # desired case (1 entry for key)
         if len(found_entries) == 1:
             return self.del_by_id(found_entries[0].rec_id)
-        # expected case (>1 entry for key)
+        # ambiguous case (>1 entry for key)
         elif len(found_entries) > 1:
             print("Multiple Records Found... "
                 "Please Specify the Telephone # for the Account as well")
@@ -103,7 +103,8 @@ class InputValidator:
         # default case (no entry for key)
         else:
             if context == self.db:
-                print("ERROR: Unable to Locate Record for Name={}".format(name))
+                print("ERROR: Unable to Locate Record for Name={}".format(
+                                                                        name))
                 return False
             else:
                 print("ERROR: Unable to Locate Record")
@@ -114,11 +115,12 @@ class InputValidator:
         """ attempt to find record by phone number """
         if not context:
             context = self.db
-        found_entries = [rec for rec in context if rec.phone_number == phone_number]
+        found_entries = [rec for rec in context
+                         if rec.phone_number == phone_number]
         # desired case (1 entry for key)
         if len(found_entries) == 1:
             return self.del_by_id(found_entries[0].rec_id)
-        # expected case (>1 entry for key)
+        # ambiguous case (>1 entry for key)
         elif len(found_entries) > 1:
             print("Multiple Records Found... "
                 "Please Specify the Name for the Account as well")
@@ -127,7 +129,8 @@ class InputValidator:
         # default case (no entry for key)
         else:
             if context == self.db:
-                print("ERROR: Unable to Locate Record for Tel={}".format(phone_number))
+                print("ERROR: Unable to Locate Record for Tel={}".format(
+                                                                phone_number))
                 return False
             else:
                 print("ERROR: Unable to Locate Record")
@@ -168,10 +171,15 @@ class InputValidator:
             print(" ADD <Name> <Phone Number>")
             print(" DEL <Name> or <Phone Number>")
             print(" LIST")
-            print(" HELP\n")
+            print(" HELP")
+            print(" QUIT")
+            print()
             return True
+        elif cmd.upper() == "QUIT":
+            exit(0)
         print("Invalid Input")
         return False
+
 
 
 class TextFileParser():
