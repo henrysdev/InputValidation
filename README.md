@@ -1,7 +1,7 @@
 *******************************************************
 *                                                     *
 *              Pacific Bell Telephone CLI             *
-*                     (Henry Warren)                  *
+*                  (Henry Warren 2018)                *
 *                                                     *
 *******************************************************
 
@@ -18,4 +18,4 @@ RUN INSTRUCTIONS
 
     2. Auto Mode (pass the program a text file containing line-delimited commands
                   to be run sequentially by the program. Example cmdlist.txt file included)
-        $ python3 InputValidator.py <cmdlist-file>
+       $ python3 InputValidator.py <cmdlist-file>
