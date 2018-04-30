@@ -16,6 +16,6 @@ RUN INSTRUCTIONS
     1. Manual Mode (manually enter commands one at a time)
        $ python3 InputValidator.py
 
-    2. Auto Mode (pass the program a text file containing line-delimited commands
-                  to be run sequentially by the program. Example cmdlist.txt file included)
+    2. Auto Mode (pass the program a text file containing line-delimited commands to be run sequentially by the program. Example cmdlist.txt file included)
        $ python3 InputValidator.py <cmdlist-file>
+
